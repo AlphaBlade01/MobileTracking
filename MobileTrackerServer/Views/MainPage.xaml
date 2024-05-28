@@ -1,15 +1,36 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:maps="http://schemas.microsoft.com/dotnet/2021/maui/maps"
-             x:Class="MobileTrackerServer.Views.MainPage">
+             xmlns:map="clr-namespace:Syncfusion.Maui.Maps;assembly=Syncfusion.Maui.Maps"
+             xmlns:local="clr-namespace:MobileTrackerServer.Views"
+             xmlns:viewmodels="clr-namespace:MobileTrackerServer.ViewModels"
+             xmlns:models="clr-namespace:MobileTrackerServer.Models"
+             x:Class="MobileTrackerServer.Views.MainPage"
+             x:DataType="viewmodels:MainViewModel">
 
-    <Grid
-        RowDefinitions="100, *">
-        <Label Text="Location" Grid.Row="0"></Label>
-        <maps:Map>
-            
-        </maps:Map>
-    </Grid>
+    <VerticalStackLayout Padding="10">
+        <Label Text="Location" Margin="10" FontSize="Header"></Label>
+
+        <map:SfMaps x:Name="sfmap" BackgroundColor="Beige">
+            <map:SfMaps.Layer>
+                <map:MapTileLayer x:Name="TileLayer"
+                                  UrlTemplate="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                  Markers="{Binding MapMarkers}"
+                                  ShowMarkerTooltip="True"
+                                  Radius="0.3"
+                                  DistanceType="Kilometer"
+                                  Center="{Binding Center}"
+                                  ZoomPanBehavior="{Binding ZoomPanBehavior}">
+
+                    <map:MapTileLayer.MarkerTooltipTemplate>
+                        <DataTemplate x:DataType="{x:Type models:MarkerTooltipInfo}">
+                            <Label Text="{Binding DataItem.Name}"/>
+                        </DataTemplate>
+                    </map:MapTileLayer.MarkerTooltipTemplate>
+                </map:MapTileLayer>
+            </map:SfMaps.Layer>
+        </map:SfMaps>
+
+    </VerticalStackLayout>
 
 </ContentPage>
