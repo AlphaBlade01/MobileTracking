@@ -1,4 +1,3 @@
-**/AndroidManifest.xml
 **/Generated\ **/Files/
 **/.vs/
 **/[Dd]ebug/
@@ -17,3 +16,4 @@
 **/[Ll]ogs/
 *.[Cc]ache
 !?*.[Cc]ache/
+**/.env
