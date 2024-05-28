@@ -1,21 +1,23 @@
 ﻿using MobileTrackerServer.Models.DTOs;
-using System.Diagnostics;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 
-namespace MobileTrackerServer.Logic;
+namespace MobileTrackerServer.Logic.Listeners;
 
-public class NetworkListener : IDisposable
+public abstract class BaseListener
 {
-    private const string ACKNOWLEDGED = "<|ACK|>";
-    private Socket listener;
-    internal event MessageReceiveHandler MessageReceived;
+    protected const string ACKNOWLEDGED = "<|ACK|>";
+    protected Socket listener;
 
-    internal delegate void MessageReceiveHandler(MarkerDTO location);
+    protected abstract Task HandleResponse(string response);
 
-    private async Task HandleClient(Socket handler)
+    protected virtual async Task HandleClient(Socket handler)
     {
         while (true)
         {
@@ -26,8 +28,7 @@ public class NetworkListener : IDisposable
                 break;
 
             string rawResponse = Encoding.UTF8.GetString(buffer, 0, received);
-            MarkerDTO markerDTO = JsonSerializer.Deserialize<MarkerDTO>(rawResponse);
-            MessageReceived.Invoke(markerDTO);
+            _ = Task.Run(() => HandleResponse(rawResponse));
 
             await handler.SendAsync(Encoding.UTF8.GetBytes(ACKNOWLEDGED));
         }
@@ -42,21 +43,17 @@ public class NetworkListener : IDisposable
         }
     }
 
-    private async Task AsyncNetworkListener()
+    private async Task AsyncUpdateTrackerListener(int port)
     {
         IPHostEntry hosts = await Dns.GetHostEntryAsync("127.0.0.1");
         IPAddress localHost = hosts.AddressList[0];
-        IPEndPoint endpoint = new(localHost, 3773);
+        IPEndPoint endpoint = new(localHost, port);
 
         listener = new Socket(endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
         listener.Bind(endpoint);
         listener.Listen(100);
         BeginListen();
     }
-    public NetworkListener() => AsyncNetworkListener();
 
-    public void Dispose()
-    {
-        listener.Shutdown(SocketShutdown.Both);
-    }
+    public BaseListener(int port) => AsyncUpdateTrackerListener(port);
 }
