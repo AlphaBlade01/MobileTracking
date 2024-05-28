@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using MobileTrackerServer.Logic;
 using MobileTrackerServer.Models;
 using Syncfusion.Maui.Maps;
 using System.Collections.ObjectModel;
@@ -11,27 +12,15 @@ public partial class MainViewModel : ObservableObject
     public MapLatLng Center { get; set; }
     public MapZoomPanBehavior ZoomPanBehavior { get; set; }
 
-    public MainViewModel() 
+    public MainViewModel(NetworkListener listener) 
     {
         MapMarkers = [];
-        ZoomPanBehavior = new MapZoomPanBehavior
+        ZoomPanBehavior = new MapZoomPanBehavior()
         {
             MaxZoomLevel = 19,
-            ZoomLevel = 19,
-            EnableZooming = true,
-            EnablePanning = true
+            ZoomLevel = 15,
+            EnableDoubleTapZooming = true,
+            MinZoomLevel = 5
         };
-
-        MobileMarker marker = new()
-        {
-            Latitude = 52.56902,
-            Longitude = -1.82200,
-            IconHeight = 20,
-            IconWidth = 20,
-            Name = "Samsung S24"
-        };
-
-        Center = new MapLatLng(marker.Latitude, marker.Longitude);
-        MapMarkers.Add(marker);
     }
 }

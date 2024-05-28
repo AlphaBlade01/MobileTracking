@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using MobileTrackerServer.Logic;
 using MobileTrackerServer.ViewModels;
 using MobileTrackerServer.Views;
 using Syncfusion.Maui.Core.Hosting;
@@ -25,7 +26,8 @@ namespace MobileTrackerServer
 
             builder.Services
                 .AddSingleton<MainViewModel>()
-                .AddSingleton<MainPage>();
+                .AddSingleton<MainPage>()
+                .AddSingleton<NetworkListener>();
 
             return builder.Build();
         }
