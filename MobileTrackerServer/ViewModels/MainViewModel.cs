@@ -1,16 +1,19 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.Animations;
 using MobileTrackerServer.Logic.Listeners;
 using MobileTrackerServer.Models;
 using MobileTrackerServer.Models.DTOs;
 using Syncfusion.Maui.Maps;
 using System.Collections.ObjectModel;
+using Microsoft.Maui.Dispatching;
 
 namespace MobileTrackerServer.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
     [ObservableProperty]
-    public Collection<MobileMarker> mapMarkers;
+    public ObservableCollection<MobileMarker> mapMarkers;
 
     [ObservableProperty]
     public MapLatLng center;
@@ -21,7 +24,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     public bool visible;
 
-    private void AddMarker(MarkerDTO markerDTO)
+    private Task AddMarker(MarkerDTO markerDTO)
     {
         MobileMarker marker = new MobileMarker()
         {
@@ -33,20 +36,24 @@ public partial class MainViewModel : ObservableObject
         MapMarkers.Add(marker);
         Center = new MapLatLng(markerDTO.Latitude, markerDTO.Longitude);
         Visible = true;
+
+        return Task.CompletedTask;
     }
 
     private void UpdateMarker(object? sender, MessageReceiveArgs eventArgs)
     {
-        MarkerDTO markerDTO = eventArgs.Marker;
-        if (!MapMarkers.Any(marker => marker.Guid == markerDTO.Guid))
+        MainThread.BeginInvokeOnMainThread(() =>
         {
-            AddMarker(markerDTO);
-            return;
-        }
-
-        MobileMarker marker = MapMarkers.Single(m =>  m.Guid == markerDTO.Guid);
-        marker.Latitude = markerDTO.Latitude;
-        marker.Longitude = markerDTO.Longitude;
+            MarkerDTO markerDTO = eventArgs.Marker;
+            if (!MapMarkers.Any(marker => marker.Guid == markerDTO.Guid))
+            {
+                AddMarker(markerDTO);
+                return;
+            }
+            MobileMarker marker = MapMarkers.Single(m => m.Guid == markerDTO.Guid);
+            marker.Latitude = markerDTO.Latitude;
+            marker.Longitude = markerDTO.Longitude;
+        });
     }
 
     public MainViewModel() 
@@ -62,5 +69,16 @@ public partial class MainViewModel : ObservableObject
         Center = new MapLatLng();
 
         UpdateTrackerListener.MessageReceived += UpdateMarker;
+    }
+
+    [RelayCommand]
+    public Task CenterToMarker(Guid id)
+    {
+        MobileMarker? marker = MapMarkers.SingleOrDefault(m => m.Id == id);
+        if (marker != null)
+        {
+            Center = new MapLatLng(marker.Latitude, marker.Longitude);
+        }
+        return Task.CompletedTask;
     }
 }

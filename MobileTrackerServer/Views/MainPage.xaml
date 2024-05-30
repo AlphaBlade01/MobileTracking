@@ -6,32 +6,52 @@
              xmlns:viewmodels="clr-namespace:MobileTrackerServer.ViewModels"
              xmlns:models="clr-namespace:MobileTrackerServer.Models"
              x:Class="MobileTrackerServer.Views.MainPage"
-             x:DataType="viewmodels:MainViewModel">
+             x:DataType="viewmodels:MainViewModel"
+             Title="Tracker">
 
     <ContentPage.Resources>
         <ResourceDictionary>
             <DataTemplate x:Key="MarkerTemplate">
                 <Image Source="map_marker.webp"
-                       HeightRequest="30"
-                       WidthRequest="30"/>
+                        HeightRequest="30"
+                        WidthRequest="30"/>
             </DataTemplate>
         </ResourceDictionary>
     </ContentPage.Resources>
 
     <Grid Padding="10"
-          RowDefinitions="100, *">
-        <Label Text="Location" Margin="10" FontSize="Header" Grid.Row="0"></Label>
+          ColumnDefinitions="200, *">
 
-        <map:SfMaps x:Name="sfmap" BackgroundColor="Beige" Grid.Row="2" IsVisible="{Binding Visible}">
-            <map:SfMaps.Layer Grid.Row="2">
-                <map:MapTileLayer Grid.Row="2" x:Name="TileLayer"
+        <StackLayout Padding="10">
+            <Label Text="Devices" FontSize="Title"/>
+
+            <CollectionView ItemsSource="{Binding MapMarkers}" HorizontalOptions="CenterAndExpand">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="{x:Type models:MobileMarker}">
+                        <Button Text="{Binding Name}"
+                                Command="{Binding Source={x:RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=CenterToMarkerCommand}"
+                                CommandParameter="{Binding Id}"
+                                Margin="0, 5"/>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </StackLayout>
+
+        <Frame CornerRadius="5" Grid.Column="1">
+            <Label HorizontalTextAlignment="Center" VerticalTextAlignment="Center">No connected devices.</Label>
+        </Frame>
+       
+
+        <map:SfMaps x:Name="sfmap" BackgroundColor="Beige" Grid.Column="1" IsVisible="{Binding Visible}">
+            <map:SfMaps.Layer>
+                <map:MapTileLayer Grid.Row="2" x:Name="tileLayer"
                                     UrlTemplate="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
                                     Markers="{Binding MapMarkers}"
-                                  MarkerTemplate="{StaticResource MarkerTemplate}"
+                                    MarkerTemplate="{StaticResource MarkerTemplate}"
                                     ShowMarkerTooltip="True"
                                     Radius="0.3"
                                     DistanceType="Kilometer"
-                                    Center="{Binding Center}"
+                                    Center="{Binding Center, Mode=TwoWay}"
                                     ZoomPanBehavior="{Binding ZoomPanBehavior}"
                                     EnableZoomingAnimation="True"
                                     EnableCenterAnimation="True">
