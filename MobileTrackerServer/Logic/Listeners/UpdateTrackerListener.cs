@@ -1,20 +1,37 @@
 ﻿using MobileTrackerServer.Models.DTOs;
+using System.Net;
 using System.Text.Json;
 
 namespace MobileTrackerServer.Logic.Listeners;
 
+internal class MessageReceiveArgs(MarkerDTO marker) : EventArgs
+{
+    public MarkerDTO Marker = marker;
+}
+
 public class UpdateTrackerListener : BaseListener
 {
-    private const int PORT = 3773;
-    internal event MessageReceiveHandler MessageReceived;
-    internal delegate void MessageReceiveHandler(MarkerDTO location);
+    public override string PATH => "/update";
+    internal static event EventHandler<MessageReceiveArgs> MessageReceived;
 
-    protected override Task HandleResponse(string response)
+    public override Task Post(HttpListenerContext context)
     {
-        MarkerDTO markerDTO = JsonSerializer.Deserialize<MarkerDTO>(response);
-        MessageReceived.Invoke(markerDTO);
+        if (!context.Request.HasEntityBody) BadRequest(context);
+        
+        string body;
+        using (var reader = new StreamReader(context.Request.InputStream))
+        {
+            body = reader.ReadToEnd();
+        }
+
+        MarkerDTO markerDTO = JsonSerializer.Deserialize<MarkerDTO>(body);
+        Console.WriteLine(MessageReceived);
+        MessageReceived?.Invoke(this, new MessageReceiveArgs(markerDTO));
+
+        context.Response.StatusCode = 200;
+        context.Response.Close();
         return Task.CompletedTask;
     }
 
-    public UpdateTrackerListener() : base(PORT) { }
+    public UpdateTrackerListener() { }
 }

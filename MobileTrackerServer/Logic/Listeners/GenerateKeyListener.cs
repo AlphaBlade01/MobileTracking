@@ -1,21 +1,19 @@
-﻿using System.Net.Sockets;
+﻿using System.Net;
 using System.Text;
-using System.Text.Unicode;
 
 namespace MobileTrackerServer.Logic.Listeners;
 
 public class GenerateKeyListener : BaseListener
 {
-    private const int PORT = 3774;
+    public override string PATH => "/generate-key";
 
-    protected override async Task HandleResponse(string response)
-    { }
-
-    protected override async Task HandleClient(Socket handler)
+    public override async Task Get(HttpListenerContext context)
     {
-        string guid = Guid.NewGuid().ToString();
-        await handler.SendAsync(Encoding.UTF8.GetBytes(guid));
+        HttpListenerResponse response = context.Response;
+        Guid guid = Guid.NewGuid();
+        await response.OutputStream.WriteAsync(Encoding.UTF8.GetBytes(guid.ToString()));
+        response.Close();
     }
 
-    public GenerateKeyListener(): base(PORT) { }
+    public GenerateKeyListener() { }
 }
