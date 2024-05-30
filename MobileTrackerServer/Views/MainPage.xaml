@@ -8,19 +8,33 @@
              x:Class="MobileTrackerServer.Views.MainPage"
              x:DataType="viewmodels:MainViewModel">
 
-    <VerticalStackLayout Padding="10">
-        <Label Text="Location" Margin="10" FontSize="Header"></Label>
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <DataTemplate x:Key="MarkerTemplate">
+                <Image Source="map_marker.webp"
+                       HeightRequest="30"
+                       WidthRequest="30"/>
+            </DataTemplate>
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
-        <map:SfMaps x:Name="sfmap" BackgroundColor="Beige">
-            <map:SfMaps.Layer>
-                <map:MapTileLayer x:Name="TileLayer"
-                                  UrlTemplate="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                  Markers="{Binding MapMarkers}"
-                                  ShowMarkerTooltip="True"
-                                  Radius="0.3"
-                                  DistanceType="Kilometer"
-                                  Center="{Binding Center}"
-                                  ZoomPanBehavior="{Binding ZoomPanBehavior}">
+    <Grid Padding="10"
+          RowDefinitions="100, *">
+        <Label Text="Location" Margin="10" FontSize="Header" Grid.Row="0"></Label>
+
+        <map:SfMaps x:Name="sfmap" BackgroundColor="Beige" Grid.Row="2" IsVisible="{Binding Visible}">
+            <map:SfMaps.Layer Grid.Row="2">
+                <map:MapTileLayer Grid.Row="2" x:Name="TileLayer"
+                                    UrlTemplate="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                    Markers="{Binding MapMarkers}"
+                                  MarkerTemplate="{StaticResource MarkerTemplate}"
+                                    ShowMarkerTooltip="True"
+                                    Radius="0.3"
+                                    DistanceType="Kilometer"
+                                    Center="{Binding Center}"
+                                    ZoomPanBehavior="{Binding ZoomPanBehavior}"
+                                    EnableZoomingAnimation="True"
+                                    EnableCenterAnimation="True">
 
                     <map:MapTileLayer.MarkerTooltipTemplate>
                         <DataTemplate x:DataType="{x:Type models:MarkerTooltipInfo}">
@@ -31,6 +45,6 @@
             </map:SfMaps.Layer>
         </map:SfMaps>
 
-    </VerticalStackLayout>
+    </Grid>
 
 </ContentPage>
