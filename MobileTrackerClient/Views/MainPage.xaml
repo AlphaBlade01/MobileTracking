@@ -6,9 +6,9 @@
              x:DataType="{x:Type viewmodels:MainViewModel}"
              Title="Register Tracking">
 
-    <Grid RowDefinitions="20, 20, *">
-        <Label>Server Ip:</Label>
+    <Grid RowDefinitions="20, 50, 50" Padding="10">
+        <Label Grid.Row="0" FontSize="Header">Server Ip:</Label>
         <Entry Grid.Row="1" Text="{Binding ServerIp}"/>
-        <Button Text="Submit" Command="{Binding ConnectTriggeredCommand}"/>
+        <Button Grid.Row="2" Text="Submit" Command="{Binding ConnectTriggeredCommand}"/>
     </Grid>
 </ContentPage>

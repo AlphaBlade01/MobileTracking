@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using MobileTrackerClient.ViewModels;
 using MobileTrackerClient.Views;
-using MobileTrackerClient.Interfaces;
 
 namespace MobileTrackerClient
 {
@@ -27,7 +26,7 @@ namespace MobileTrackerClient
                 .AddSingleton<MainViewModel>();
 
 #if ANDROID26_0_OR_GREATER
-            builder.Services.AddTransient<IService, TrackerService>();
+            builder.Services.AddTransient<Platforms.Android.AndroidService>();
 #endif
 
             return builder.Build();

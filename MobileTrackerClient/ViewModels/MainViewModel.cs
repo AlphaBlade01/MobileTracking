@@ -9,9 +9,13 @@ public partial class MainViewModel : ObservableObject
     public string serverIp;
 
     [RelayCommand]
-    public void OnConnectTriggered()
+    public void ConnectTriggered()
     {
-
+#if ANDROID26_0_OR_GREATER
+        Android.Content.Intent intent = new(Android.App.Application.Context, typeof(Platforms.Android.AndroidService));
+        intent.SetAction("START_SERVICE");
+        Android.App.Application.Context.StartForegroundService(intent);
+#endif
     }
 
     public MainViewModel()
