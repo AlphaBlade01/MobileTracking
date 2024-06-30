@@ -1,9 +1,7 @@
-﻿using MobileTrackerClient.Logic.Interfaces;
-using MobileTrackerClient.Models;
-using MobileTrackerClient.Models.DTOs;
+﻿using MobileTrackerClient.Models.DTOs;
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace MobileTrackerClient.Logic.Services;
 
@@ -12,7 +10,7 @@ public static class TrackingService
     public static readonly string NOTIFICATION_CHANNEL_ID = "tracking_service";
     public static readonly int NOTIFICATION_ID = 1;
 
-    private static readonly string BASE_URL = "https://localhost:3773";
+    private static readonly string BASE_URL = "http://localhost:3773";
     private static readonly HttpClient httpClient = new();
     private static string device_id = string.Empty;
     private static bool enabled = false;
@@ -33,15 +31,26 @@ public static class TrackingService
         await httpClient.PostAsync(BASE_URL + "/update", content);
     }
 
+    private static async void GenerateKey()
+    {
+        try
+        {
+            HttpResponseMessage response = await httpClient.GetAsync($"{BASE_URL}/generate-key");
+            device_id = await response.Content.ReadAsStringAsync();
+        } catch (Exception ex)
+        {
+            Debug.WriteLine(ex);
+        }
+    }
+
     public static async void StartService()
     {
-        HttpResponseMessage response = await httpClient.GetAsync(BASE_URL + "/generate-key");
-        device_id = await response.Content.ReadAsStringAsync();
+        GenerateKey();
         enabled = true;
 
         while (enabled)
         {
-            await UpdateLocation();
+            await MainThread.InvokeOnMainThreadAsync(UpdateLocation);
             await Task.Delay(5000);
         }
     }
