@@ -6,7 +6,7 @@ namespace MobileTrackerServer.Logic;
 public class HttpServer
 {
     private const int PORT = 3773;
-    private static readonly string URL = $"http://localhost:{PORT}/";
+    private static readonly string URL = $"http://*:{PORT}/";
     private Dictionary<string, BaseListener> listeners;
     private HttpListener listener;
 
