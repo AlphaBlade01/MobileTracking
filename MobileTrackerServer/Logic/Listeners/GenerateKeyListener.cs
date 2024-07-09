@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Text;
 
 namespace MobileTrackerServer.Logic.Listeners;
@@ -9,10 +10,24 @@ public class GenerateKeyListener : BaseListener
 
     public override async Task Get(HttpListenerContext context)
     {
-        HttpListenerResponse response = context.Response;
         Guid guid = Guid.NewGuid();
-        await response.OutputStream.WriteAsync(Encoding.UTF8.GetBytes(guid.ToString()));
-        response.Close();
+        HttpListenerResponse response = context.Response;
+
+        try
+        {
+            byte[] buffer = Encoding.UTF8.GetBytes(guid.ToString());
+            response.ContentType = "text/plain";
+            response.ContentLength64 = buffer.Length;
+
+            await response.OutputStream.WriteAsync(buffer);
+            await response.OutputStream.FlushAsync();
+        } catch (Exception ex)
+        {
+            Debug.WriteLine(ex);
+        } finally
+        {
+            response.Close();
+        }
     }
 
     public GenerateKeyListener() { }
